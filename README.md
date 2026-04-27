@@ -1,6 +1,3 @@
-Perfeito! Agora vou criar um README profissional e detalhado para o Cobrinha Game:
-
-```markdown
 # 🐍 CYBER-SNAKE.EXE — NEON OVERDRIVE
 
 > Um jogo Snake futurista desenvolvido em Python com CustomTkinter. Apresenta estética cyberpunk/neon com 4 modos de dificuldade progressivos, sistema de partículas para efeitos visuais, grid interativo e mecânicas de jogo polidas. Desenvolvido em colaboração com Otávio César.
