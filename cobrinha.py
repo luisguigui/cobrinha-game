@@ -88,18 +88,12 @@ class Particle:
 
 class CyberSnake(ctk.CTk):
 
-    # --------------------------------------------------------
-    #  INICIALIZAÇÃO
-    # --------------------------------------------------------
-
     def __init__(self):
         super().__init__()
         self.title("CYBER-SNAKE.EXE - NEON OVERDRIVE")
         self.geometry("1150x750")
         self.configure(fg_color="#000000")
 
-        # Estado: "menu" | "playing" | "paused" | "over"
-        # Alterado de self.state para self.game_state para evitar conflito
         self.game_state     = "menu" 
         self.snake          = list(SNAKE_START)
         self.direction      = "Right"
@@ -116,10 +110,6 @@ class CyberSnake(ctk.CTk):
         self._spawn_food()
         self._draw_menu()
 
-    # --------------------------------------------------------
-    #  PERSISTÊNCIA
-    # --------------------------------------------------------
-
     def _load_highscore(self) -> int:
         if os.path.exists(SAVE_FILE):
             try:
@@ -132,10 +122,6 @@ class CyberSnake(ctk.CTk):
     def _save_highscore(self):
         with open(SAVE_FILE, "w") as f:
             json.dump({"hs": self.high_score}, f)
-
-    # --------------------------------------------------------
-    #  INTERFACE (UI)
-    # --------------------------------------------------------
 
     def _setup_ui(self):
         self.grid_columnconfigure(1, weight=1)
@@ -157,7 +143,6 @@ class CyberSnake(ctk.CTk):
                      font=("Consolas", 12),
                      text_color="#555555").pack(pady=(0, 20))
 
-        # Score e Record
         score_frame = ctk.CTkFrame(sidebar, fg_color="#0d0d0d", corner_radius=10)
         score_frame.pack(padx=20, pady=(0, 10), fill="x")
 
@@ -175,20 +160,17 @@ class CyberSnake(ctk.CTk):
                                    text_color="#ffff00")
         self.hs_lbl.pack(pady=(0, 8))
 
-        # Modos
         ctk.CTkLabel(sidebar, text="── MODO ──",
                      font=("Consolas", 11), text_color="#444444").pack(pady=(10, 5))
 
         for mode in MODES:
             ctk.CTkRadioButton(sidebar, text=mode,
                                variable=self.selected_mode, value=mode,
- command=self._on_mode_change, fg_color=COLOR_ACCENT, hover_color="#007a88").pack(pady=5, padx=30, anchor="w")
+                               command=self._on_mode_change, fg_color=COLOR_ACCENT, hover_color="#007a88").pack(pady=5, padx=30, anchor="w")
 
-        # Botão principal
         self.btn_start = ctk.CTkButton(sidebar, text="▶  BOOT SYSTEM", font=("Impact", 18), fg_color="#1f538d", hover_color="#2a6fbb", height=50, command=self._toggle_game)
         self.btn_start.pack(side="bottom", pady=(0, 16), padx=20, fill="x")
 
-        # Dica de teclas
         ctk.CTkLabel(sidebar, text="P = Pause   M = Menu   F11 = FullScreen", font=("Consolas", 9), text_color="#333333", wraplength=240).pack(side="bottom", pady=(0, 4))
 
     def _build_canvas(self):
@@ -204,10 +186,6 @@ class CyberSnake(ctk.CTk):
         self.bind("<KeyPress>", self._handle_input)
         self.bind("<F11>",      self._toggle_fullscreen)
 
-    # --------------------------------------------------------
-    #  TELAS DE ESTADO
-    # --------------------------------------------------------
-
     def _draw_menu(self):
         cfg = self._current_mode()
         self.canvas.delete("all")
@@ -216,34 +194,29 @@ class CyberSnake(ctk.CTk):
 
         self._draw_grid()
 
-        # Título
         self.canvas.create_text(CANVAS_W // 2, 100,
                                 text="CYBER-SNAKE.EXE",
                                 font=("Fixedsys", 46, "bold"),
-                                fill=cfg["head"])
+                                fill=cfg["head"], tags="menu_obj")
         self.canvas.create_text(CANVAS_W // 2, 148,
                                 text="NEON  OVERDRIVE",
                                 font=("Fixedsys", 18),
-                                fill="#ffffff")
+                                fill="#ffffff", tags="menu_obj")
 
-        # Linha separadora
         self.canvas.create_line(CANVAS_W // 2 - 220, 170,
                                 CANVAS_W // 2 + 220, 170,
-                                fill=cfg["head"], width=2)
+                                fill=cfg["head"], width=2, tags="menu_obj")
 
-        # Recorde
         self.canvas.create_text(CANVAS_W // 2, 195,
                                 text=f"★  RECORDE: {self.high_score}  ★",
                                 font=("Consolas", 16, "bold"),
-                                fill="#ffff00")
+                                fill="#ffff00", tags="menu_obj")
 
-        # Modo selecionado
         self.canvas.create_text(CANVAS_W // 2, 228,
                                 text=f"MODO ATIVO → {self.selected_mode.get()}",
                                 font=("Consolas", 12),
-                                fill=cfg["head"])
+                                fill=cfg["head"], tags="menu_obj")
 
-        # Caixas de controles
         controls = [
             ("WASD / SETAS", "Mover a cobra"),
             ("ESPAÇO / ENTER", "Iniciar jogo"),
@@ -254,27 +227,26 @@ class CyberSnake(ctk.CTk):
         cx = CANVAS_W // 2
         y = 275
         self.canvas.create_text(cx, y, text="CONTROLES",
-                                font=("Fixedsys", 14), fill=cfg["head"])
+                                font=("Fixedsys", 14), fill=cfg["head"], tags="menu_obj")
         y += 10
         self.canvas.create_line(cx - 120, y + 8, cx + 120, y + 8,
-                                fill="#333333", width=1)
+                                fill="#333333", width=1, tags="menu_obj")
         for key, desc in controls:
             y += 30
             self.canvas.create_text(cx - 10, y, text=key,
                                     font=("Consolas", 12, "bold"),
-                                    fill="white", anchor="e")
+                                    fill="white", anchor="e", tags="menu_obj")
             self.canvas.create_text(cx + 10, y, text=f"→ {desc}",
                                     font=("Consolas", 12),
-                                    fill="#888888", anchor="w")
+                                    fill="#888888", anchor="w", tags="menu_obj")
 
-        # Botão de start estilizado
         by = CANVAS_H - 60
         self.canvas.create_rectangle(cx - 180, by - 22, cx + 180, by + 22,
-                                     outline=cfg["head"], width=2, fill="#0a0a0a")
+                                     outline=cfg["head"], width=2, fill="#0a0a0a", tags="menu_obj")
         self.canvas.create_text(cx, by,
                                 text="▶  PRESSIONE ESPAÇO PARA INICIAR",
                                 font=("Consolas", 13, "bold"),
-                                fill=cfg["head"])
+                                fill=cfg["head"], tags="menu_obj")
 
     def _draw_pause_overlay(self):
         cfg = self._current_mode()
@@ -308,7 +280,6 @@ class CyberSnake(ctk.CTk):
                                      fill="#000000", stipple="gray50",
                                      tags="game_obj")
 
-        # Caixa central
         self.canvas.create_rectangle(cx - 260, cy - 110, cx + 260, cy + 120,
                                      fill="#0d0000", outline="#FF0000",
                                      width=2, tags="game_obj")
@@ -342,10 +313,6 @@ class CyberSnake(ctk.CTk):
                                 text="ESPAÇO → Reiniciar     M → Menu",
                                 font=("Consolas", 13),
                                 fill=cfg["head"], tags="game_obj")
-
-    # --------------------------------------------------------
-    #  CONTROLES E ESTADO
-    # --------------------------------------------------------
 
     def _on_mode_change(self):
         if self.game_state == "menu":
@@ -386,6 +353,7 @@ class CyberSnake(ctk.CTk):
         elif self.game_state == "over":    self._start_game()
 
     def _start_game(self):
+        self.canvas.delete("all") # Limpeza imediata do menu
         self._reset_state()
         self.game_state = "playing"
         self.btn_start.configure(text="⏸  PAUSE SYSTEM", fg_color="#333333")
@@ -417,10 +385,6 @@ class CyberSnake(ctk.CTk):
         self.is_fullscreen = not self.is_fullscreen
         self.attributes("-fullscreen", self.is_fullscreen)
 
-    # --------------------------------------------------------
-    #  CENÁRIO / MODO
-    # --------------------------------------------------------
-
     def _current_mode(self) -> dict:
         return MODES[self.selected_mode.get()]
 
@@ -428,10 +392,6 @@ class CyberSnake(ctk.CTk):
         cfg = self._current_mode()
         self.canvas.configure(bg=cfg["bg"])
         self.canvas_frame.configure(bg=cfg["head"])
-
-    # --------------------------------------------------------
-    #  LOOP PRINCIPAL
-    # --------------------------------------------------------
 
     def _game_loop(self):
         if self.game_state != "playing":
@@ -441,10 +401,6 @@ class CyberSnake(ctk.CTk):
         self._update_particles()
         self._render()
         self.after(cfg["speed"], self._game_loop)
-
-    # --------------------------------------------------------
-    #  LÓGICA DA COBRA
-    # --------------------------------------------------------
 
     def _move_snake(self, cfg: dict):
         self.direction = self.next_direction
@@ -494,10 +450,6 @@ class CyberSnake(ctk.CTk):
                 self.food = (x, y)
                 break
 
-    # --------------------------------------------------------
-    #  PARTÍCULAS
-    # --------------------------------------------------------
-
     def _update_particles(self):
         self.particles = [p for p in self.particles if p.update()]
 
@@ -505,14 +457,12 @@ class CyberSnake(ctk.CTk):
         for _ in range(count):
             self.particles.append(Particle(self.canvas, x, y, color))
 
-    # --------------------------------------------------------
-    #  RENDERIZAÇÃO
-    # --------------------------------------------------------
-
     def _render(self):
         self.canvas.delete("game_obj")
         self.canvas.delete("grid")
         self.canvas.delete("overlay")
+        self.canvas.delete("menu_obj") # Limpa elementos do menu
+        
         cfg = self._current_mode()
         self._draw_grid()
         self._draw_scanlines()
@@ -528,9 +478,10 @@ class CyberSnake(ctk.CTk):
                                     fill="#ffffff", stipple="gray12", tags="grid")
 
     def _draw_scanlines(self):
+        # Scanlines desenhadas com a tag "grid" para melhor performance
         for i in range(0, CANVAS_H, 4):
             self.canvas.create_line(0, i, CANVAS_W, i,
-                                    fill="#000000", stipple="gray25", tags="game_obj")
+                                    fill="#000000", stipple="gray25", tags="grid")
 
     def _draw_food(self, cfg: dict):
         fx, fy = self.food
@@ -561,10 +512,6 @@ class CyberSnake(ctk.CTk):
             fill=cfg["tail"], outline=cfg["bg"], tags="game_obj"
         )
 
-    # --------------------------------------------------------
-    #  GAME OVER
-    # --------------------------------------------------------
-
     def _game_over(self):
         self.game_state = "over"
 
@@ -587,10 +534,6 @@ class CyberSnake(ctk.CTk):
         self.particles.clear()
         self._spawn_food()
 
-
-# ============================================================
-#  ENTRADA
-# ============================================================
 
 if __name__ == "__main__":
     CyberSnake().mainloop()
